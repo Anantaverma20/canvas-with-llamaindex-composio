@@ -5,7 +5,17 @@ import { X, Plus } from "lucide-react";
 import TextareaAutosize from "react-textarea-autosize";
 import { Progress } from "@/components/ui/progress";
 import type { ChartData, EntityData, Item, ItemData, NoteData, ProjectData } from "@/lib/canvas/types";
-import { chartAddField1Metric, chartRemoveField1Metric, chartSetField1Label, chartSetField1Value, projectAddField4Item, projectRemoveField4Item, projectSetField4ItemDone, projectSetField4ItemText } from "@/lib/canvas/updates";
+import {
+  chartAddField1Metric,
+  chartRemoveField1Metric,
+  chartSetField1Label,
+  chartSetField1Value,
+  projectAddField4Item,
+  projectRemoveField4Item,
+  projectSetField4ItemDone,
+  projectSetField4ItemText,
+} from "@/lib/canvas/updates";
+import { FOLLOW_UP_OWNER_OPTIONS, PARTICIPANT_STATUS_OPTIONS } from "@/lib/canvas/state";
 
 export function CardRenderer(props: {
   item: Item;
@@ -18,11 +28,11 @@ export function CardRenderer(props: {
     const d = item.data as NoteData;
     return (
       <div className="mt-4">
-        <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (textarea)</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500">Interview notes</label>
         <TextareaAutosize
           value={d.field1 ?? ""}
           onChange={(e) => onUpdateData(() => ({ field1: e.target.value }))}
-          placeholder="Write note..."
+          placeholder="Drop raw transcript snippets, takeaways, or follow-up context..."
           className="min-h-40 w-full resize-none rounded-md border bg-white/60 p-3 text-sm leading-6 outline-none placeholder:text-gray-400 transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
           minRows={6}
         />
@@ -35,7 +45,7 @@ export function CardRenderer(props: {
     return (
       <div className="mt-4">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm font-medium">Field 1 (metrics)</span>
+          <span className="text-sm font-medium">Pipeline metrics</span>
           <button
             type="button"
             className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
@@ -101,17 +111,17 @@ export function CardRenderer(props: {
     return (
       <div className="mt-4 @container">
         <div className="mb-3">
-          <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Text)</label>
+          <label className="mb-1 block text-xs font-medium text-gray-500">Focus / theme</label>
           <input
             value={d.field1}
             onChange={(e) => set({ field1: e.target.value })}
             className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
-            placeholder="Field 1 value"
+            placeholder="What initiative or outcome are these tasks driving?"
           />
         </div>
         <div className="contents @xs:grid gap-3 md:grid-cols-2">
           <div className="@max-xs:mb-3">
-            <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Select)</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Owner</label>
             <select
               value={d.field2}
               onChange={(e) => set({ field2: e.target.value })}
@@ -119,13 +129,13 @@ export function CardRenderer(props: {
               className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent invalid:text-gray-400"
             >
               <option value="">Select...</option>
-              {["Option A", "Option B", "Option C"].map((opt) => (
+              {FOLLOW_UP_OWNER_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>{opt}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Date)</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500">Target date</label>
             <input
               type="date"
               value={d.field3}
@@ -137,7 +147,7 @@ export function CardRenderer(props: {
         </div>
         <div className="mt-4">
           <div className="mb-2 flex items-center justify-between">
-            <label className="block text-xs font-medium text-gray-500">Field 4 (checklist)</label>
+            <label className="block text-xs font-medium text-gray-500">Follow-up checklist</label>
             <button
               type="button"
               className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
@@ -189,16 +199,16 @@ export function CardRenderer(props: {
   return (
     <div className="mt-4">
       <div className="mb-3">
-        <label className="mb-1 block text-xs font-medium text-gray-500">Field 1 (Text)</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500">Company & role summary</label>
         <input
           value={e.field1}
           onChange={(ev) => setEntity({ field1: ev.target.value })}
           className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors placeholder:text-gray-400 hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent focus:placeholder:text-accent/65"
-          placeholder="Field 1 value"
+          placeholder="e.g. Flowrite · Director of Operations"
         />
       </div>
       <div className="mb-3">
-        <label className="mb-1 block text-xs font-medium text-gray-500">Field 2 (Select)</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500">Interview status</label>
         <select
           value={e.field2}
           onChange={(ev) => setEntity({ field2: ev.target.value })}
@@ -206,13 +216,13 @@ export function CardRenderer(props: {
           className="w-full rounded-md border px-2 py-1.5 text-sm outline-none transition-colors hover:ring-1 hover:ring-border focus:ring-2 focus:ring-accent/50 focus:shadow-sm focus:bg-accent/10 focus:text-accent invalid:text-gray-400"
         >
           <option value="">Select...</option>
-          {["Option A", "Option B", "Option C"].map((opt) => (
+          {PARTICIPANT_STATUS_OPTIONS.map((opt) => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
         </select>
       </div>
       <div className="mt-4">
-        <label className="mb-1 block text-xs font-medium text-gray-500">Field 3 (Tags)</label>
+        <label className="mb-1 block text-xs font-medium text-gray-500">Focus tags</label>
         <div className="flex flex-wrap gap-2">
           {(e.field3_options ?? []).map((t) => {
             const active = (e.field3 ?? []).includes(t);
