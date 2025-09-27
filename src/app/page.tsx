@@ -13,7 +13,13 @@ import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/rea
 import { EmptyState } from "@/components/empty-state";
 import { cn, getContentArg } from "@/lib/utils";
 import type { AgentState, Item, ItemData, ProjectData, EntityData, NoteData, ChartData, CardType } from "@/lib/canvas/types";
-import { initialState, isNonEmptyAgentState } from "@/lib/canvas/state";
+import {
+  FOLLOW_UP_OWNER_OPTIONS,
+  PARTICIPANT_STATUS_OPTIONS,
+  PARTICIPANT_TAG_OPTIONS,
+  initialState,
+  isNonEmptyAgentState,
+} from "@/lib/canvas/state";
 import { projectAddField4Item, projectSetField4ItemText, projectSetField4ItemDone, projectRemoveField4Item, chartAddField1Metric, chartSetField1Label, chartSetField1Value, chartRemoveField1Metric } from "@/lib/canvas/updates";
 import useMediaQuery from "@/hooks/use-media-query";
 import ItemHeader from "@/components/canvas/ItemHeader";
@@ -137,20 +143,22 @@ export default function CopilotKitPage() {
         .slice(0, 5)
         .map((p: Item) => `id=${p.id} • name=${p.name} • type=${p.type}`)
         .join("\n");
+      const ownerOptions = FOLLOW_UP_OWNER_OPTIONS.map((opt) => `'${opt}'`).join(" | ");
+      const statusOptions = PARTICIPANT_STATUS_OPTIONS.map((opt) => `'${opt}'`).join(" | ");
       const fieldSchema = [
         "FIELD SCHEMA (authoritative):",
         "- project.data:",
-        "  - field1: string (text)",
-        "  - field2: string (select: 'Option A' | 'Option B' | 'Option C'; empty string means unset)",
-        "  - field3: string (date 'YYYY-MM-DD')",
+        "  - field1: string (follow-up theme or context)",
+        `  - field2: string (owner select: ${ownerOptions}; empty string means unset)`,
+        "  - field3: string (target date 'YYYY-MM-DD')",
         "  - field4: ChecklistItem[] where ChecklistItem={id: string, text: string, done: boolean, proposed: boolean}",
         "- entity.data:",
-        "  - field1: string",
-        "  - field2: string (select: 'Option A' | 'Option B' | 'Option C'; empty string means unset)",
+        "  - field1: string (company and role summary)",
+        `  - field2: string (status select: ${statusOptions}; empty string means unset)`,
         "  - field3: string[] (selected tags; subset of field3_options)",
-        "  - field3_options: string[] (available tags)",
+        "  - field3_options: string[] (available interview focus tags)",
         "- note.data:",
-        "  - field1: string (textarea)",
+        "  - field1: string (textarea for transcripts or insights)",
         "- chart.data:",
         "  - field1: Array<{id: string, label: string, value: number | ''}> with value in [0..100] or ''",
       ].join("\n");
@@ -158,7 +166,8 @@ export default function CopilotKitPage() {
         "TOOL USAGE HINTS:",
         "- To create cards, call createItem with { type: 'project' | 'entity' | 'note' | 'chart', name?: string } and use returned id.",
         "- Prefer calling specific actions: setProjectField1, setProjectField2, setProjectField3, addProjectChecklistItem, setProjectChecklistItem, removeProjectChecklistItem.",
-        "- field2 values: 'Option A' | 'Option B' | 'Option C' | '' (empty clears).",
+        `- Project owner options: ${ownerOptions}, or '' to clear.`,
+        `- Participant status options: ${statusOptions}, or '' to clear.`,
         "- field3 accepts natural dates (e.g., 'tomorrow', '2025-01-30'); it will be normalized to YYYY-MM-DD.",
         "- Checklist edits accept either the generated id (e.g., '001') or a numeric index (e.g., '1', 1-based).",
         "- For charts, values are clamped to [0..100]; use clearChartField1Value to clear an existing metric value.",
@@ -336,7 +345,7 @@ export default function CopilotKitPage() {
           field1: "",
           field2: "",
           field3: [],
-          field3_options: ["Tag 1", "Tag 2", "Tag 3"],
+          field3_options: PARTICIPANT_TAG_OPTIONS,
         } as EntityData;
       case "note":
         return { field1: "" } as NoteData;
@@ -1363,24 +1372,24 @@ export default function CopilotKitPage() {
                 labels={{
                   title: "Agent",
                   initial:
-                    "👋 Share a brief or ask to extract fields. Changes will sync with the canvas in real time.",
+                    "👋 Ask for interview summaries, log follow-ups, or request new cards. Updates stay synced with the canvas in real time.",
                 }}
                 suggestions={[
                   {
-                    title: "Add a Project",
-                    message: "Create a new project.",
+                    title: "Add participant",
+                    message: "Create a new entity card for the next interview participant.",
                   },
                   {
-                    title: "Add an Entity",
-                    message: "Create a new entity.",
+                    title: "Log interview note",
+                    message: "Create a note card to capture today's transcript.",
                   },
                   {
-                    title: "Add a Note",
-                    message: "Create a new note.",
+                    title: "Plan follow-up tasks",
+                    message: "Spin up a follow-up action project card with checklist items.",
                   },
                   {
-                    title: "Add a Chart",
-                    message: "Create a new chart.",
+                    title: "Update pipeline snapshot",
+                    message: "Refresh the interview pipeline chart with new counts.",
                   },
                 ]}
               />
@@ -1524,24 +1533,24 @@ export default function CopilotKitPage() {
             labels={{
               title: "Agent",
               initial:
-                "👋 Share a brief or ask to extract fields. Changes will sync with the canvas in real time.",
+                "👋 Ask for interview summaries, log follow-ups, or request new cards. Updates stay synced with the canvas in real time.",
             }}
             suggestions={[
               {
-                title: "Add a Project",
-                message: "Create a new project.",
+                title: "Add participant",
+                message: "Create a new entity card for the next interview participant.",
               },
               {
-                title: "Add an Entity",
-                message: "Create a new entity.",
+                title: "Log interview note",
+                message: "Create a note card to capture today's transcript.",
               },
               {
-                title: "Add a Note",
-                message: "Create a new note.",
+                title: "Plan follow-up tasks",
+                message: "Spin up a follow-up action project card with checklist items.",
               },
               {
-                title: "Add a Chart",
-                message: "Create a new chart.",
+                title: "Update pipeline snapshot",
+                message: "Refresh the interview pipeline chart with new counts.",
               },
             ]}
           />

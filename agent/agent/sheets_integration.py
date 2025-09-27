@@ -239,7 +239,13 @@ def create_default_data(item_type: str) -> Dict[str, Any]:
             "field1": "",
             "field2": "",
             "field3": [],
-            "field3_options": ["Tag 1", "Tag 2", "Tag 3"],
+            "field3_options": [
+                "Pain point: Reporting overhead",
+                "Workflow automation",
+                "Stakeholder alignment",
+                "Adoption risk",
+                "Feature request",
+            ],
         }
     elif item_type == "note":
         return {
@@ -308,7 +314,13 @@ def create_item_data(item_type: str, row: List[str], headers: List[str]) -> Dict
             "field1": row[2] if len(row) > 2 else "",  # Description
             "field2": "",  # Select option (empty by default)
             "field3": extract_tags_from_row(row),  # Tags
-            "field3_options": ["Import", "Data", "Sheet", "Tag 1", "Tag 2"],  # Default options
+            "field3_options": [
+                "Pain point: Reporting overhead",
+                "Workflow automation",
+                "Stakeholder alignment",
+                "Adoption risk",
+                "Feature request",
+            ],
         }
     
     elif item_type == "note":
